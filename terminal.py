@@ -3,8 +3,8 @@
 
 import os
 import time
-from channel_interpreter import run_script
-from chl_parser import CHLParser, list_directory
+from interpreter import run_script
+from parser import CHLParser, list_directory
 
 def clear():
     os.system("cls" if os.name == "nt" else "clear")
