@@ -23,7 +23,7 @@ def run_chl(file_path):
                 num1 = float(numbers[0])
                 num2 = float(numbers[1])
             except Exception:
-                print("[error] invalid math syntax")
+                print("[Error] Invalid math syntax")
                 continue
 
             if operation == "add":
@@ -34,11 +34,11 @@ def run_chl(file_path):
                 result = num1 * num2
             elif operation == "divide":
                 if num2 == 0:
-                    print("[error] cannot divide by zero")
+                    print("[error] Cannot divide by zero")
                     continue
                 result = num1 / num2
             else:
-                print(f"[error] unknown operation: {operation}")
+                print(f"[Error] Unknown operation: {operation}")
                 continue
 
             print(result)
