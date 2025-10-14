@@ -1,6 +1,7 @@
 # channel_interpreter.py
-# CHANNEL SCRIPT INTERPRETER v5.0
-# fully supports variables, print, text, math with variables, and all previous commands
+# CHANNEL SCRIPT INTERPRETER v5.1
+# fully supports variables, print, text, math with variables/literals, and all previous commands
+# has a slight error, might say that f is not defined and if you modify this it would be appreciated to fix the problem :3
 
 import os
 import platform
@@ -85,14 +86,20 @@ def run_chl(file_path):
                 op, nums = args.split(maxsplit=1)
                 num1_str, num2_str = [n.strip() for n in nums.split(",")]
 
-                # replace variables with values if they exist
-                num1 = VARIABLES.get(num1_str, num1_str)
-                num2 = VARIABLES.get(num2_str, num2_str)
-                # convert to float if still string
-                num1 = float(num1) if isinstance(num1, str) else num1
-                num2 = float(num2) if isinstance(num2, str) else num2
-            except Exception:
-                print("[Error] Invalid math syntax")
+                # resolve operands (variables or literals)
+                def resolve(val):
+                    if val in VARIABLES:
+                        return VARIABLES[val]
+                    try:
+                        return float(val) if '.' in val else int(val)
+                    except:
+                        raise ValueError(f"Invalid operand: {val}")
+
+                num1 = resolve(num1_str)
+                num2 = resolve(num2_str)
+
+            except Exception as e:
+                print(f"[Error] Invalid math syntax: {e}")
                 continue
 
             op = op.lower()
