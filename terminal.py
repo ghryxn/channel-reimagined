@@ -1,10 +1,11 @@
 # main_terminal.py
-# CHANNEL TERMINAL v13.0 (clean + integrated with improved interpreter)
+# CHANNEL TERMINAL v13.1
+# fully integrated with channel_interpreter.py v5.1
+# supports var, print, text, math, mkdir, mkfile, cd, ls/dir, runapp
 
 import os
 import time
-from interpreter import run_script
-from parser import CHLParser, list_directory
+from interpreter import run_chl, CHLParser, list_directory, VARIABLES
 
 def clear():
     os.system("cls" if os.name == "nt" else "clear")
@@ -18,29 +19,58 @@ def run_direct_command(command):
     commands = parser.parse()
     for cmd, args in commands:
         args = args.strip()
-        if cmd in ["text", "math", "mkdir", "mkfile", "cd", "ls", "dir", "runapp"]:
-            # handle commands using run_chl style, but inline for direct input
-            # we use run_chl for full scripts, here we just run single-line commands
-            run_script_inline(cmd, args)
+        # use the interpreter for all commands
+        if cmd in ["text", "var", "print", "math", "mkdir", "mkfile", "cd", "ls", "dir", "runapp"]:
+            run_chl_inline(cmd, args)
         else:
             print(f"[Unknown command: {args}]")
 
-def run_script_inline(cmd, args):
-    # minimal inline version of run_chl for direct input commands
-    import subprocess, platform
-    import os
+def run_chl_inline(cmd, args):
+    """Run a single-line command interactively (like run_chl, but inline)"""
+    import platform, subprocess
 
     cwd = os.getcwd()
 
     if cmd == "text":
         print(args)
+
+    elif cmd == "var":
+        try:
+            name, value = args.split("=", maxsplit=1)
+            name = name.strip()
+            value = value.strip()
+            if value.replace(".", "", 1).isdigit():
+                value = float(value) if "." in value else int(value)
+            VARIABLES[name] = value
+        except Exception:
+            print(f"[Error] Invalid var syntax: {args}")
+
+    elif cmd == "print":
+        if args in VARIABLES:
+            print(VARIABLES[args])
+        else:
+            print(f"[Error] Variable '{args}' not found")
+
     elif cmd == "math":
         try:
             op, nums = args.split(maxsplit=1)
-            num1, num2 = map(float, [n.strip() for n in nums.split(",")])
-        except Exception:
-            print("[Error] Invalid math syntax")
+            num1_str, num2_str = [n.strip() for n in nums.split(",")]
+
+            def resolve(val):
+                if val in VARIABLES:
+                    return VARIABLES[val]
+                try:
+                    return float(val) if '.' in val else int(val)
+                except:
+                    raise ValueError(f"Invalid operand: {val}")
+
+            num1 = resolve(num1_str)
+            num2 = resolve(num2_str)
+
+        except Exception as e:
+            print(f"[Error] Invalid math syntax: {e}")
             return
+
         op = op.lower()
         if op == "add":
             print(num1 + num2)
@@ -55,6 +85,7 @@ def run_script_inline(cmd, args):
                 print(num1 / num2)
         else:
             print(f"[Error] Unknown operation: {op}")
+
     elif cmd == "mkdir":
         new_folder = os.path.join(cwd, args)
         try:
@@ -62,6 +93,7 @@ def run_script_inline(cmd, args):
             print(f"[Folder created: {new_folder}]")
         except Exception as e:
             print(f"[Error] {e}")
+
     elif cmd == "mkfile":
         new_file = os.path.join(cwd, args)
         try:
@@ -70,6 +102,7 @@ def run_script_inline(cmd, args):
             print(f"[File created: {new_file}]")
         except Exception as e:
             print(f"[Error] {e}")
+
     elif cmd == "cd":
         new_path = os.path.expanduser(args)
         if platform.system() == "Windows" and len(new_path) == 2 and new_path[1] == ":":
@@ -88,8 +121,10 @@ def run_script_inline(cmd, args):
                 print(f"[Error] {e}")
         else:
             print(f"[Error] Path not found: {new_path}")
+
     elif cmd in ["ls", "dir"]:
         list_directory(cwd)
+
     elif cmd == "runapp":
         try:
             if os.name == "nt":
@@ -103,7 +138,7 @@ def run_script_inline(cmd, args):
 def main():
     clear()
     print("╔════════════════════════════════╗")
-    print("║ CHANNEL TERMINAL v13.0        ║")
+    print("║ CHANNEL TERMINAL v13.1        ║")
     print("║ Type 'help' for commands      ║")
     print("╚════════════════════════════════╝")
 
@@ -120,20 +155,22 @@ def main():
         elif cmd == "help":
             print("""Commands:
  run [file.chl] - Run a .chl script
- text [message] - Print text directly
- math [op] a, b - Do a math operation
+ text [message] - Print raw text
+ var [name] = [value] - Declare variable
+ print [name]  - Print variable value
+ math [op] a, b - Math operation (variables or numbers)
  cd [path]      - Change directory or drive
- mkdir [name]   - Create a new folder
- mkfile [name]  - Create a new empty file
+ mkdir [name]   - Create folder
+ mkfile [name]  - Create empty file
  ls / dir       - List files and folders
- runapp [prog]  - Run an external program
+ runapp [prog]  - Run external program
  clear          - Clear the screen
- exit           - Close the terminal""")
+ exit           - Close terminal""")
         elif cmd.startswith("run "):
             filename = cmd[4:].strip()
             full_path = os.path.join(cwd, filename)
-            run_script(full_path)
-        elif cmd.startswith(("text ", "math ", "mkdir ", "mkfile ", "cd ", "runapp ")):
+            run_chl(full_path)
+        elif cmd.startswith(("text ", "var ", "print ", "math ", "mkdir ", "mkfile ", "cd ", "runapp ")):
             run_direct_command(cmd)
         elif cmd in ["ls", "dir"]:
             list_directory(cwd)
@@ -142,4 +179,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
