@@ -139,8 +139,8 @@ def run_chl_inline(cmd, args):
 def main():
     clear()
     print("╔════════════════════════════════╗")
-    print("║ CHANNEL TERMINAL v13.1        ║")
-    print("║ Type 'help' for commands      ║")
+    print("║     CHANNEL TERMINAL v13.1     ║")
+    print("║    Type 'help' for commands    ║")
     print("╚════════════════════════════════╝")
 
     cwd = os.getcwd()
@@ -166,7 +166,8 @@ def main():
  ls / dir       - List files and folders
  runapp [prog]  - Run external program
  clear          - Clear the screen
- exit           - Close terminal""")
+ exit           - Close terminal
+ edit [f + ff]  - Edits file specified (syntax: Filename + File Format)""")
         elif cmd.startswith("run "):
             filename = cmd[4:].strip()
             full_path = os.path.join(cwd, filename)
