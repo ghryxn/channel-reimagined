@@ -1,7 +1,7 @@
 # Channel Reimagined
 
 ![Status](https://img.shields.io/badge/status-in_testing-brightgreen)<br>
-![Version](https://img.shields.io/badge/version-13.1-beta.2-blue)<br>
+![Version](https://img.shields.io/badge/version-13.1--beta.2-blue)<br>
 ![Build](https://img.shields.io/badge/build-open--source-yellow)<br>
 ![Made_by](https://img.shields.io/badge/made_by-ryxn-orange)<br>
 
