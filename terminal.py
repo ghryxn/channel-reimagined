@@ -6,6 +6,7 @@
 import os
 import time
 from interpreter import run_chl, CHLParser, list_directory, VARIABLES
+from code_editor import run_editor
 
 def clear():
     os.system("cls" if os.name == "nt" else "clear")
@@ -172,6 +173,10 @@ def main():
             run_chl(full_path)
         elif cmd.startswith(("text ", "var ", "print ", "math ", "mkdir ", "mkfile ", "cd ", "runapp ")):
             run_direct_command(cmd)
+        elif cmd.startswith("edit "):
+            filename = cmd[5:].strip()
+            full_path = os.path.join(cwd, filename)
+            run_editor(full_path)
         elif cmd in ["ls", "dir"]:
             list_directory(cwd)
         else:
